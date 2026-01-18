@@ -1,26 +1,32 @@
 from flask import Flask, request, jsonify
-import sqlite3, os
+import sqlite3
+import os
 
 app = Flask(__name__)
 
-# Correct path for Render + local
+# Always create DB in same folder as this file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "chatbot.db")
 
 def init_db():
     conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("""
+    cur = conn.cursor()
+    cur.execute("""
         CREATE TABLE IF NOT EXISTS chats (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user TEXT,
-            bot TEXT
+            user_message TEXT,
+            bot_reply TEXT,
+            time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
     conn.commit()
     conn.close()
 
 init_db()
+
+@app.route("/")
+def home():
+    return "AI Healthcare Backend Running"
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -37,8 +43,11 @@ def chat():
         bot_reply = "Please describe your symptoms clearly."
 
     conn = sqlite3.connect(DB_PATH)
-    c = conn.cursor()
-    c.execute("INSERT INTO chats (user, bot) VALUES (?, ?)", (user_msg, bot_reply))
+    cur = conn.cursor()
+    cur.execute(
+        "INSERT INTO chats (user_message, bot_reply) VALUES (?, ?)",
+        (user_msg, bot_reply)
+    )
     conn.commit()
     conn.close()
 
