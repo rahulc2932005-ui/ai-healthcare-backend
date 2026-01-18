@@ -1,0 +1,34 @@
+{
+  "intents": [
+    {
+      "tag": "greeting",
+      "patterns": ["hi", "hello", "hey", "good morning"],
+      "responses": ["Hello! How can I help you?", "Hi! Tell me your health problem."]
+    },
+    {
+      "tag": "fever",
+      "patterns": ["i have fever", "high temperature", "feeling hot"],
+      "responses": ["You may have a fever. Drink water, rest, and see a doctor if it stays high."]
+    },
+    {
+      "tag": "cold",
+      "patterns": ["i have cold", "runny nose", "sneezing"],
+      "responses": ["For cold, take rest and drink warm fluids."]
+    },
+    {
+      "tag": "headache",
+      "patterns": ["headache", "pain in head", "migraine"],
+      "responses": ["Drink water, rest, and avoid screens."]
+    },
+    {
+      "tag": "stomach",
+      "patterns": ["stomach pain", "abdominal pain", "gas problem"],
+      "responses": ["Eat light food and avoid spicy items."]
+    },
+    {
+  "tag": "thanks",
+  "patterns": ["thanks", "thank you"],
+  "responses": ["You're welcome! Take care."]
+    }
+  ]
+}
