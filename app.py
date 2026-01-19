@@ -1,34 +1,37 @@
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import sqlite3
+import psycopg2
 import os
 
 app = Flask(__name__)
 CORS(app)
 
-# Always create DB in same folder as this file
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB_PATH = os.path.join(BASE_DIR, "chatbot.db")
+# Neon connection string from environment variable
+DATABASE_URL = os.environ.get("DATABASE_URL")
+
+def get_conn():
+    return psycopg2.connect(DATABASE_URL)
 
 def init_db():
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     cur = conn.cursor()
     cur.execute("""
         CREATE TABLE IF NOT EXISTS chats (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_message TEXT,
             bot_reply TEXT,
             time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
     conn.commit()
+    cur.close()
     conn.close()
 
 init_db()
 
 @app.route("/")
 def home():
-    return "AI Healthcare Backend Running"
+    return "AI Healthcare Backend Running (PostgreSQL)"
 
 @app.route("/chat", methods=["POST"])
 def chat():
@@ -44,18 +47,18 @@ def chat():
     else:
         bot_reply = "Please describe your symptoms clearly."
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     cur = conn.cursor()
     cur.execute(
-        "INSERT INTO chats (user_message, bot_reply) VALUES (?, ?)",
+        "INSERT INTO chats (user_message, bot_reply) VALUES (%s, %s)",
         (user_msg, bot_reply)
     )
     conn.commit()
+    cur.close()
     conn.close()
 
     return jsonify({"reply": bot_reply})
 
-# Render uses dynamic PORT
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
